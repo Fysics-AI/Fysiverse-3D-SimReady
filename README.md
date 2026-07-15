@@ -2,7 +2,7 @@
 
 This open-source subset provides the interactive image-to-3D scene generation workflow. Use the Gradio page to upload an image, annotate objects, run segmentation, wait for the scene graph, and launch 3D scene generation.
 
-To allow the community to experience our technology as soon as possible, the version we are currently releasing is built on top of open-source models. We will subsequently integrate our self-developed models into this system.
+To allow the community to experience our technology as soon as possible, the version we are currently releasing is built on top of open-source models. We will subsequently integrate our self-developed physics engine and generation model into this system.
 
 ## Environment
 
