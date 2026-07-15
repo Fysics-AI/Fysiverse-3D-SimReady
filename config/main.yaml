@@ -1,0 +1,39 @@
+# Main config for the open-source scene-generation pipeline.
+# Runtime parameters should be edited here or in the module configs.
+# The Gradio launcher and pipeline stages read this config.
+# Blank secret fields can still be supplied through local env vars.
+
+pipeline:
+  workflow_root: /absolute/path/to/open_source_wobg  # Repo root used by scripts. Replace with your checkout path.
+  conda_bin: conda  # Conda executable or absolute path to conda.
+  conda_env: fysiverse-scene  # New env created by scripts/setup_conda_env.sh.
+  blender_bin: blender  # Blender 4.5.4 binary for GLB/Blend export. Use an absolute path if not in PATH.
+  package_timeout: 2400  # Seconds allowed for final release_package export.
+
+server:
+  name: 0.0.0.0  # Gradio bind address. Use 127.0.0.1 for local-only access.
+  port: 7860  # Preferred Gradio port.
+  port_search_count: 100  # Try this many ports after port if the preferred port is busy.
+
+runtime:
+  gradio_analytics_enabled: false  # Keep false for release builds to avoid Gradio telemetry.
+
+paths:
+  gsam2_root: /absolute/path/to/Grounded-SAM-2  # Grounded-SAM-2 source tree with checkpoints/.
+  sam3d_root: /absolute/path/to/SAM3D  # SAM3D source tree.
+  sam3d_config: /absolute/path/to/SAM3D/runtime_configs/pipeline_hf_cache_moge_modelpt.yaml  # SAM3D runtime config.
+  moge_root: /absolute/path/to/MoGe  # MoGe source tree imported during postprocess.
+  moge_ckpt: /absolute/path/to/moge-2-vitl-normal/model.pt  # Existing MoGe checkpoint.
+
+features:
+  scene_graph: true  # false skips VLM support relations; object lifting still runs from masks.
+
+module_configs:
+  gsam: gsam.yaml  # Segmentation defaults.
+  sam3d: sam3d.yaml  # Object lifting defaults.
+  moge: moge.yaml  # Upright, grounding, nvdiffrast pose refinement.
+  scene_graph: scene_graph.yaml  # VLM backend and API settings.
+  web_assets: web_assets.yaml  # Browser GLB compression settings.
+  diagnostic: diagnostic.yaml  # Final diagnostic Blend/web animation settings.
+  sapien: sapien.yaml  # Gravity settling settings.
+  collision: collision.yaml  # CoACD/collision correction settings.

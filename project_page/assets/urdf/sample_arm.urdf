@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<robot name="sample_drag_arm">
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.42 0.42 0.42"/>
+      </geometry>
+      <material name="base_gray"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.42 0.42 0.42"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="upper_arm">
+    <visual>
+      <origin xyz="0.60 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="1.20 0.16 0.16"/>
+      </geometry>
+      <material name="upper_green"/>
+    </visual>
+    <collision>
+      <origin xyz="0.60 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="1.20 0.16 0.16"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="forearm">
+    <visual>
+      <origin xyz="0.50 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="1.00 0.14 0.14"/>
+      </geometry>
+      <material name="forearm_orange"/>
+    </visual>
+    <collision>
+      <origin xyz="0.50 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="1.00 0.14 0.14"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="shoulder_pan" type="revolute">
+    <parent link="base_link"/>
+    <child link="upper_arm"/>
+    <origin xyz="0.24 0 0" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-1.5708" upper="1.5708" effort="40" velocity="4"/>
+  </joint>
+
+  <joint name="elbow_pan" type="revolute">
+    <parent link="upper_arm"/>
+    <child link="forearm"/>
+    <origin xyz="1.20 0 0" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-2.3562" upper="2.3562" effort="30" velocity="4"/>
+  </joint>
+</robot>

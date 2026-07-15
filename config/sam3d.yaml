@@ -1,0 +1,4 @@
+# SAM3D object lifting.
+
+gpu: 0  # CUDA device for SAM3D. Can differ from GSAM GPU.
+timeout: 14400  # Seconds before a SAM3D run is killed; increase for many objects or slow GPUs.

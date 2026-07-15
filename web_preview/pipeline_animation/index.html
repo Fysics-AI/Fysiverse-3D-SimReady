@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pipeline Animation Preview</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+          "meshoptimizer": "https://cdn.jsdelivr.net/npm/meshoptimizer@0.22.0/meshopt_decoder.module.js"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <main class="app-shell">
+      <div class="topbar">
+        <div class="title">Pipeline Animation</div>
+        <label class="compact-field scene-field">
+          <span>Scene</span>
+          <select id="session-select">
+            <option value="">Pass ?manifest=...</option>
+          </select>
+        </label>
+        <label class="compact-field">
+          <span>Speed</span>
+          <select id="speed-select">
+            <option value="0.5">0.5x</option>
+            <option value="1" selected>1x</option>
+            <option value="2">2x</option>
+            <option value="4">4x</option>
+          </select>
+        </label>
+        <button id="camera-menu-button" type="button">Camera</button>
+        <span id="status" class="status">Loading</span>
+      </div>
+      <div class="viewer-wrap">
+        <canvas id="viewer"></canvas>
+        <div class="stage-strip" id="stage-strip"></div>
+        <div id="camera-panel" class="camera-panel" hidden>
+          <div class="camera-panel-head">
+            <span>Camera</span>
+            <button id="close-camera-panel" type="button">Close</button>
+          </div>
+          <div class="camera-controls">
+            <label class="camera-lock">
+              <input id="camera-lock" type="checkbox" checked />
+              <span>Lock across scenes</span>
+            </label>
+
+            <section class="camera-section">
+              <div class="camera-section-title">Pose</div>
+              <div class="camera-grid">
+                <label><span>Pos X</span><input id="cam-pos-x" type="number" step="0.01" /></label>
+                <label><span>Pos Y</span><input id="cam-pos-y" type="number" step="0.01" /></label>
+                <label><span>Pos Z</span><input id="cam-pos-z" type="number" step="0.01" /></label>
+                <label><span>Target X</span><input id="cam-target-x" type="number" step="0.01" /></label>
+                <label><span>Target Y</span><input id="cam-target-y" type="number" step="0.01" /></label>
+                <label><span>Target Z</span><input id="cam-target-z" type="number" step="0.01" /></label>
+                <label><span>Up X</span><input id="cam-up-x" type="number" step="0.01" /></label>
+                <label><span>Up Y</span><input id="cam-up-y" type="number" step="0.01" /></label>
+                <label><span>Up Z</span><input id="cam-up-z" type="number" step="0.01" /></label>
+              </div>
+            </section>
+
+            <section class="camera-section">
+              <div class="camera-section-title">Lens</div>
+              <div class="camera-grid">
+                <label><span>FOV</span><input id="cam-fov" type="number" min="5" max="120" step="1" /></label>
+                <label><span>Near</span><input id="cam-near" type="number" min="0.0001" step="0.001" /></label>
+                <label><span>Far</span><input id="cam-far" type="number" min="1" step="1" /></label>
+              </div>
+            </section>
+
+            <section class="camera-section">
+              <div class="camera-section-title">Resolution</div>
+              <div class="camera-grid">
+                <label><span>Width</span><input id="render-width" type="number" min="0" step="1" placeholder="auto" /></label>
+                <label><span>Height</span><input id="render-height" type="number" min="0" step="1" placeholder="auto" /></label>
+                <label><span>Pixel ratio</span><input id="render-pixel-ratio" type="number" min="0.5" max="3" step="0.25" /></label>
+              </div>
+            </section>
+
+            <div class="camera-actions">
+              <button id="apply-camera-button" type="button">Apply</button>
+              <button id="sync-camera-button" type="button">Use current</button>
+              <button id="fit-camera-button" type="button">Fit scene</button>
+              <button id="copy-camera-json-button" type="button">Copy JSON</button>
+            </div>
+            <textarea id="camera-json" spellcheck="false" readonly></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="timeline">
+        <button id="play-button" type="button">Pause</button>
+        <span id="frame-readout">0</span>
+        <input id="frame-slider" type="range" min="0" max="1" value="0" />
+      </div>
+    </main>
+    <script type="module" src="./src/viewer.js?v=open_source"></script>
+  </body>
+</html>

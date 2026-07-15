@@ -1,0 +1,27 @@
+# Compressed GLB assets for the web visualizer.
+
+export: true  # false skips web asset export; release package can still be made from Blend/GLB.
+preview_compressor: gltfpack  # auto, gltfpack, gltf-transform, none. Affects optional merged preview GLB; failures warn and continue.
+web_compressor: gltfpack  # auto, gltfpack, gltf-transform, none. Affects required per-object web GLBs; failures copy raw GLB fallback.
+gltfpack_bin: gltfpack  # Binary name/path.
+gltf_transform_bin: gltf-transform  # Optional fallback compressor.
+allow_npx_gltfpack: false  # true allows network/npm fallback; keep false for reproducible servers.
+allow_npx_gltf_transform: false  # true allows network/npm fallback.
+no_texture_compress: false  # true preserves original texture encoding; larger output but fewer codec issues.
+keep_raw: false  # true keeps raw intermediate web GLBs; release package separately keeps raw_objects.
+timeout: 1800  # Total web export timeout.
+blender_timeout: 600  # Blender export timeout.
+compressor_timeout: 900  # Compressor timeout.
+
+gltfpack_compression: cz  # c, cc, cz. cz is high compression and web-friendly.
+gltfpack_compression_extension: ext  # ext or khr. ext is compatible with current viewer stack.
+gltfpack_texture_quality: 3  # Lower is smaller/lossier.
+gltfpack_texture_limit: 128  # Texture max dimension. Higher improves visual quality.
+gltfpack_texture_scale:  # Optional texture scale; blank lets gltfpack decide.
+gltfpack_simplify_ratio: 0.02  # Geometry simplification ratio. Lower keeps more geometry.
+gltfpack_simplify_error: 0.10  # Simplification error tolerance.
+gltfpack_simplify_aggressive: true  # More aggressive simplification.
+gltfpack_simplify_permissive: true  # Allows broader simplification choices.
+gltfpack_position_bits: 9  # Quantization bits for positions. Higher is more precise/larger.
+gltfpack_texcoord_bits: 7  # Quantization bits for UVs.
+gltfpack_normal_bits: 5  # Quantization bits for normals.

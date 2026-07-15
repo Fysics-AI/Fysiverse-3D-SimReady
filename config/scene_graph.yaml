@@ -1,0 +1,15 @@
+# Mask-scoped scene graph VLM.
+# Do not commit real API keys. Fill api.* locally or set SCENE_GRAPH_* env vars.
+
+backend: openai_compatible  # "openai_compatible", "dashscope_qwen", or "codex".
+codex_bin: codex  # Used only when backend=codex.
+model: ""  # Codex model override; empty uses Codex defaults.
+timeout: 300  # Seconds for scene graph generation.
+max_crop_images: 200  # Object crop images sent to VLM. Higher can improve relations but costs more.
+reasoning_effort: inherit  # Codex only: inherit, low, medium, high, xhigh.
+
+api:
+  base_url: ""  # OpenAI-compatible chat endpoint, e.g. https://api.example.com/v1.
+  model: ""  # VLM model name for API backend.
+  key: ""  # Optional local key. Prefer leaving blank in git and using env/local config.
+  retry_without_crops: true  # If crop-heavy request fails, retry with original+scope image only.
