@@ -9,7 +9,7 @@ To allow the community to experience our technology as soon as possible, the ver
 Create a new conda environment for this package. The installer does not modify existing conda environments, system CUDA, or NVIDIA drivers, and it does not download model weights.
 
 ```bash
-cd open_source_wobg
+cd Fysiverse-3D-SimReady
 ENV_NAME=fysiverse-3d CONDA_BIN=conda scripts/setup_conda_env.sh
 conda activate fysiverse-3d
 ```
@@ -49,7 +49,7 @@ Keep real API keys out of git. The setup script should not contain API keys.
 Start the interactive page:
 
 ```bash
-cd open_source_wobg
+cd Fysiverse-3D-SimReady
 ./launch_gradio_app.sh
 ```
 
@@ -99,7 +99,7 @@ sessions/<session_id>/results/release_package/
 Serve the `open_source_wobg` directory with a static file server:
 
 ```bash
-cd open_source_wobg
+cd Fysiverse-3D-SimReady
 
 python -m http.server 8080
 ```
