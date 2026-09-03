@@ -33,12 +33,30 @@ CONDA_BIN=conda scripts/setup_conda_env.sh
 conda activate fysiverse-scene
 ```
 
-PyTorch is installed from the official CUDA wheel index. Other Python packages are installed with `uv pip` from the Tsinghua mirror by default.
+Install PyTorch according to the CUDA version on your machine by following the
+official PyTorch instructions:
+[Previous PyTorch Versions](https://pytorch.org/get-started/previous-versions/).
+The setup script provides a default CUDA 12.1 wheel selection; adjust
+`TORCH_VERSION`, `TORCHVISION_VERSION`, `TORCHAUDIO_VERSION`, and
+`PYTORCH_INDEX_URL` before running it if your driver or CUDA stack requires a
+different build. Other Python packages are installed with `uv pip`.
 
 Install these external executables outside conda:
 
-- Blender 4.5.4. Set `pipeline.blender_bin` in `config/main.yaml` to `blender` or the absolute Blender binary path.
-- `gltfpack` for compressed browser GLBs. If unavailable, the exporter can fall back to `gltf-transform` when configured.
+- Blender 4.5 LTS is recommended for writing `.blend` files and rendering.
+  Download it from the official Blender website:
+  [blender.org/download](https://www.blender.org/download/). After installation,
+  make sure `blender --version` works, or set `pipeline.blender_bin` in
+  `config/main.yaml` and `deterministic_runner.blender_bin` in
+  `config/simulator_assistance.yaml` to the absolute Blender executable path.
+- `gltfpack` is recommended for compressed browser GLBs. Install it from the
+  official meshoptimizer project:
+  [meshoptimizer/gltf](https://github.com/zeux/meshoptimizer/tree/master/gltf),
+  then check that `gltfpack -h` works. If the binary is not in `PATH`, set
+  `gltfpack_bin` in `config/web_assets.yaml` to the absolute path. If
+  `gltfpack` is unavailable, the exporter can use `gltf-transform` when
+  `web_compressor`, `preview_compressor`, and `gltf_transform_bin` are
+  configured in `config/web_assets.yaml`.
 
 The setup script installs the Python packages used by reconstruction,
 postprocessing, SAPIEN simulation, CoACD collision preparation, the Gradio UI,
