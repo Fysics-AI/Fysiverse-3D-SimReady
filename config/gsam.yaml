@@ -1,0 +1,3 @@
+# GSAM2 / Grounded-SAM-2 segmentation.
+
+gpu: 0  # CUDA device for segmentation. Change when sharing GPUs; affects mask generation speed only.

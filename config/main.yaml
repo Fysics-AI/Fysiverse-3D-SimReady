@@ -1,0 +1,42 @@
+# Main config for the open-source scene-generation pipeline.
+# Runtime parameters should be edited here or overridden with environment variables.
+# The Gradio launcher and pipeline stages read this config.
+# Keep secret fields blank and supply API keys through local environment variables.
+
+pipeline:
+  workflow_root:  # Leave blank to let launch_gradio_app.sh use this checkout directory.
+  conda_bin: conda  # Conda executable or absolute path to conda.
+  conda_env: fysiverse-scene  # Conda environment used by the release pipeline.
+  blender_bin: blender  # Blender executable; use an absolute path if not in PATH.
+  package_timeout: 2400  # Seconds allowed for final release_package export.
+
+server:
+  name: 0.0.0.0  # Gradio bind address. Use 127.0.0.1 for local-only access.
+  port: 7860  # Preferred Gradio port.
+  port_search_count: 100  # Try this many ports after port if the preferred port is busy.
+
+runtime:
+  gradio_analytics_enabled: false  # Keep false for release builds to avoid Gradio telemetry.
+
+paths:
+  gsam2_root:  # Grounded-SAM-2 source tree with checkpoints/. Blank uses third_party/Grounded-SAM-2.
+  sam3d_root:  # SAM3D source tree. Blank uses third_party/SAM3D.
+  sam3d_env_dir:  # Optional SAM3D Python env path; blank uses the active env.
+  sam3d_config:  # Optional SAM3D runtime config. Blank uses the SAM3D default.
+  moge_root:  # MoGe source tree imported during postprocess. Blank uses third_party/MoGe.
+  moge_ckpt:  # MoGe checkpoint. Blank uses checkpoints/moge-2-vitl-normal/model.pt.
+
+features:
+  scene_graph: true  # false skips VLM support relations; object lifting still runs from masks.
+
+module_configs:
+  gsam: gsam.yaml  # Segmentation defaults.
+  sam3d: sam3d.yaml  # Object lifting defaults.
+  moge: moge.yaml  # Upright, grounding, nvdiffrast pose refinement.
+  scene_graph: scene_graph.yaml  # VLM backend and API settings.
+  background_3dgs: background_3dgs.yaml  # Optional appearance background reconstruction.
+  web_assets: web_assets.yaml  # Browser GLB compression settings.
+  diagnostic: diagnostic.yaml  # Final diagnostic Blend/web animation settings.
+  sapien: sapien.yaml  # Gravity settling settings.
+  collision: collision.yaml  # CoACD/collision correction settings.
+  simulator_assistance: simulator_assistance.yaml  # Agentic physical simulation settings.

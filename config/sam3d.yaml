@@ -1,0 +1,4 @@
+# SAM3D object lifting.
+
+gpu: 6  # CUDA device for SAM3D. Matches the OOD_workflow internal validation setup.
+timeout: 14400  # Seconds before a SAM3D run is killed; increase for many objects or slow GPUs.

@@ -1,0 +1,7 @@
+interface:
+  display_name: "Simulator Assistance"
+  short_description: "Plan and run SAPIEN rigid-body scenes"
+  default_prompt: "Use $simulator_assistance to turn this scene and physical goal into a SAPIEN simulation sequence."
+
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,28 @@
+# SAPIEN gravity settling.
+
+gravity:
+  timeout: 1800  # Seconds for export+simulation+apply stage.
+  z: -9.81  # Gravity along Z. Keep negative for Blender/SAPIEN Z-up world.
+
+env: fysiverse-scene  # Conda env used for SAPIEN physics simulation.
+steps: 240  # Simulation steps. More allows longer settling but costs more.
+timestep: 0.01  # Physics timestep in seconds. Smaller is more stable/slower.
+render_video: false  # Keep false for reconstruction runs; enabled only when inspecting the settle video.
+render_every: 1  # Render every N physics steps when render_video is enabled.
+settle:
+  window: 20  # Consecutive low-motion frames needed to treat scene as settled.
+  translation_threshold: 0.0005  # Motion threshold in meters per settle frame.
+video:
+  fps: 30
+  width: 960
+  height: 720
+
+friction:
+  static: 4.0  # Static friction. Higher reduces sliding.
+  dynamic: 3.0  # Dynamic friction. Higher damps sliding after motion starts.
+
+damping:
+  linear: 3.0  # Linear damping for dynamic actors.
+  angular: 30.0  # Angular damping; higher suppresses rolling/tumbling.
+
+physx_gpu: false  # true uses PhysX GPU if available; CPU is more portable.

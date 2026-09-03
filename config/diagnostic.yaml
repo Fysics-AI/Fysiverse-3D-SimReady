@@ -1,0 +1,16 @@
+# Final visualization artifacts kept for release packaging.
+
+pipeline_stage_diagnostic:
+  enabled: true  # Creates kept pipeline animation Blend; static stages sample matrix_world from saved stage Blend files.
+  frames_per_static_stage: 48  # Display frames for each pipeline stage.
+  transition_frames: 24  # Interpolation frames between stages.
+  fps: 24  # Animation FPS.
+  timeout: 900  # Diagnostic Blend generation timeout.
+
+web_pipeline_animation:
+  enabled: true  # Creates lightweight browser animation manifest that reuses compressed per-object GLBs.
+  frames_per_static_stage: 24  # Static stage frames for web animation.
+  transition_frames: 16  # Web transition frames.
+  fps: 24  # Web animation FPS.
+  gravity_frame_step: 1  # Keep every Nth gravity frame sampled directly from gravity animation Blend; higher is smaller.
+  timeout: 900  # Web animation export timeout.

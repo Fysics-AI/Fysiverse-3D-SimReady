@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Interactive Rapier Rigid Body Demo</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+          "meshoptimizer": "https://cdn.jsdelivr.net/npm/meshoptimizer@0.22.0/meshopt_decoder.module.js",
+          "@dimforge/rapier3d-compat": "https://cdn.jsdelivr.net/npm/@dimforge/rapier3d-compat@0.19.3/rapier.mjs"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <main id="sim-root" class="sim-root">
+      <div class="toolbar collapsible-panel" aria-label="Simulation controls" data-collapsible-panel>
+        <button
+          class="panel-toggle toolbar-toggle"
+          type="button"
+          aria-label="Collapse simulation controls"
+          aria-expanded="true"
+          title="Collapse simulation controls"
+          data-panel-toggle
+          data-expanded-symbol="^"
+          data-collapsed-symbol="v"
+          data-collapse-label="Collapse simulation controls"
+          data-expand-label="Show simulation controls"
+        >^</button>
+        <div class="toolbar-content panel-body">
+          <div class="brand">Rapier rigid bodies</div>
+          <button id="reset-button" type="button">Reset</button>
+          <button id="physics-button" type="button" aria-pressed="false">Physics Off</button>
+          <button id="debug-button" type="button" aria-pressed="false">Colliders Off</button>
+          <span id="status" class="status">Loading</span>
+        </div>
+      </div>
+      <aside class="scene-panel collapsible-panel" aria-label="Generated scene controls" data-collapsible-panel>
+        <div class="panel-header">
+          <div class="panel-title">Generated scene</div>
+          <button
+            class="panel-toggle"
+            type="button"
+            aria-label="Collapse generated scene controls"
+            aria-expanded="true"
+            title="Collapse generated scene controls"
+            data-panel-toggle
+            data-expanded-symbol="<"
+            data-collapsed-symbol=">"
+            data-collapse-label="Collapse generated scene controls"
+            data-expand-label="Show generated scene controls"
+          >&lt;</button>
+        </div>
+        <div class="panel-body">
+          <label class="manifest-row">
+            <span>Scene</span>
+            <select id="scene-select">
+              <option value="">Load a packaged manifest URL</option>
+            </select>
+          </label>
+          <div class="scene-actions">
+            <button id="load-scene-button" type="button">Load</button>
+            <button id="clear-scene-button" type="button">Clear</button>
+          </div>
+          <div id="generated-status" class="generated-status">Select a scene and load it.</div>
+        </div>
+      </aside>
+      <aside class="robot-panel collapsible-panel" aria-label="URDF joint controls" data-collapsible-panel>
+        <div class="panel-header">
+          <div class="panel-title">URDF joints</div>
+          <button
+            class="panel-toggle"
+            type="button"
+            aria-label="Collapse URDF joint controls"
+            aria-expanded="true"
+            title="Collapse URDF joint controls"
+            data-panel-toggle
+            data-expanded-symbol=">"
+            data-collapsed-symbol="<"
+            data-collapse-label="Collapse URDF joint controls"
+            data-expand-label="Show URDF joint controls"
+          >&gt;</button>
+        </div>
+        <div class="panel-body">
+          <label class="manifest-row">
+            <span>Robot</span>
+            <select id="robot-select">
+              <option value="franka">Franka Panda</option>
+            </select>
+          </label>
+          <div class="scene-actions robot-actions">
+            <button id="load-robot-button" type="button">Load</button>
+            <button id="clear-robot-button" type="button">Clear</button>
+          </div>
+          <div id="robot-status" class="robot-status">Select a URDF and load it.</div>
+          <label class="manifest-row asset-section">
+            <span>Character</span>
+            <select id="character-select">
+              <option value="mixamo-walk-kick">Mixamo Walk/Kick</option>
+            </select>
+          </label>
+          <div class="scene-actions robot-actions">
+            <button id="load-character-button" type="button">Load</button>
+            <button id="clear-character-button" type="button">Clear</button>
+          </div>
+          <div id="character-status" class="robot-status">Select a character and load it.</div>
+          <div id="robot-base-controls" class="robot-base-controls"></div>
+          <div id="joint-controls" class="joint-controls"></div>
+        </div>
+      </aside>
+    </main>
+    <script type="module" src="./src/sim-demo.js"></script>
+  </body>
+</html>

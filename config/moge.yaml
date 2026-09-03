@@ -1,0 +1,31 @@
+# MoGe upright/grounding and nvdiffrast pose refinement.
+
+device: cuda  # "cuda" or "cpu"; cuda is expected for practical runtime.
+resize_max: 1024  # Max image side for MoGe. Lower is faster; higher can improve geometry/camera estimates.
+resolution_level: 5  # MoGe inference resolution level. Higher is slower and may improve details.
+timeout: 1800  # Seconds for MoGe/postprocess stage before aborting.
+
+nvdiffrast:
+  conda_bin: conda  # Conda used to run nvdiffrast optimization.
+  env: fysiverse-scene  # Conda env used for MoGe/nvdiffrast.
+
+camera_optimization:
+  steps: 300  # Silhouette optimization iterations for the camera. More is slower but can improve alignment.
+  max_side: 512  # Render resolution cap during camera optimization. Larger is slower.
+
+object_pose_optimization:
+  workers: 0  # Parallel object optimizers. 0 lets the script choose serial/safe behavior.
+  max_side: 512  # Render resolution cap per object. Larger is slower.
+  position_steps: 120  # Translation refinement iterations.
+  yaw_steps: 80  # Yaw refinement iterations.
+  scale_steps: 60  # Uniform scale refinement iterations.
+  translation_mode: camera_plane  # Usually keep camera_plane; constrains translation to image-consistent motion.
+  translation_initial_grid: 3  # Initial translation candidates per axis. Larger explores more but costs more.
+  center_weight: 0.15  # Penalizes mask center mismatch; too high can overfit centers.
+  area_weight: 0.05  # Penalizes silhouette area mismatch; affects object scale stability.
+  yaw_initial_samples: 5  # Initial yaw candidates. Larger helps ambiguous objects.
+  scale_initial_samples: 5  # Initial scale candidates. Larger helps poor SAM3D scale estimates.
+  phase_accept_iou_drop: 0.01  # Acceptable IoU drop between phases; larger accepts riskier updates.
+  max_translation: 0.35  # Max normalized translation magnitude.
+  max_yaw_deg: 35.0  # Max yaw correction in degrees.
+  max_scale_delta: 0.25  # Max relative scale correction.

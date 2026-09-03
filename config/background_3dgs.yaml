@@ -1,0 +1,47 @@
+# Optional 3DGS background reconstruction after the foreground scene is rebuilt.
+# Keep disabled until 3DGRUT, GaussianSplats3D, MoGe, and an image-edit backend are configured.
+
+enabled: false
+
+background_image:
+  backend: seeddream  # seeddream | qwen
+  skip: false  # true reuses sessions/<id>/input/background.png if it already exists.
+  force: false  # true regenerates input/background.png.
+  timeout: 300
+  local_fallback: false  # Set true only for smoke tests; quality checks should use online editing.
+
+  seeddream:
+    base_url: https://ark.cn-beijing.volces.com/api/v3
+    api_key:  # Prefer ARK_API_KEY or BACKGROUND_IMAGE_SEEDDREAM_API_KEY.
+    model: doubao-seedream-5-0-pro-260628
+    size: 2K
+    response_format: url
+    watermark: true
+
+  qwen:
+    api_key:  # Prefer QWEN_IMAGE_API_KEY or DASHSCOPE_API_KEY.
+    model: qwen-image-2.0-pro
+    size: auto
+    fallback_size: 512*512
+
+dependencies:
+  qwen_env: fysiverse-scene
+  moge_env: fysiverse-scene
+  threedgrut_root:  # Blank uses third_party/3dgrut.
+  gaussian_splats_root:  # Blank uses third_party/GaussianSplats3D.
+
+gpu: 0
+iterations: 300
+timeout: 7200
+max_points: 300000
+
+use_reference_moge_fusion: true
+fusion_depth_align: scale
+foreground_mask_dilate: 3
+
+ksplat_compression: 2
+ksplat_alpha_threshold: 5
+ksplat_scene_center: 0,0,0
+ksplat_block_size: 5.0
+ksplat_bucket_size: 256
+ksplat_sh_degree: 0

@@ -1,0 +1,548 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Fysiverse 3DGS Check</title>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "./lib/three.module.js",
+          "three/addons/": "./lib/three-addons/",
+          "@mkkellogg/gaussian-splats-3d": "./lib/gaussian-splats-3d.module.js"
+        }
+      }
+    </script>
+    <style>
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+        background: #1a1a1a;
+        color: #f5f5f5;
+        font-family: Arial, sans-serif;
+      }
+
+      #viewer {
+        position: fixed;
+        inset: 0;
+      }
+
+      .status {
+        position: fixed;
+        left: 14px;
+        bottom: 12px;
+        z-index: 10;
+        max-width: min(820px, calc(100vw - 28px));
+        padding: 9px 11px;
+        border-radius: 6px;
+        background: rgba(0, 0, 0, 0.68);
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 12px;
+        line-height: 1.45;
+        word-break: break-word;
+        pointer-events: none;
+      }
+
+      .status strong {
+        color: #fff;
+      }
+
+      .error {
+        color: #ffb4a8;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="viewer"></div>
+    <div id="status" class="status">Starting viewer...</div>
+    <script type="module">
+      import * as THREE from "three";
+      import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+      import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
+      import * as GaussianSplats3D from "@mkkellogg/gaussian-splats-3d";
+
+      const BASIS_TRANSCODER_PATH = "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/basis/";
+      const GLTF_VISUAL_TO_BLENDER_Z_UP = new THREE.Matrix4().makeRotationX(Math.PI / 2);
+      const params = mergedParams();
+      const manifestUrl = params.get("manifest") || "";
+      const sequenceUrl = params.get("sequence") || "";
+      const container = document.getElementById("viewer");
+      const statusEl = document.getElementById("status");
+
+      let renderer;
+      let camera;
+      let controls;
+      let splatScene;
+      let foregroundScene;
+      let animationStarted = false;
+      let meshRecordsByName = new Map();
+      let animationSequence = null;
+      let animationClockStartMs = 0;
+      let lastAppliedSequenceFrame = -1;
+
+      window.addEventListener("error", (event) => {
+        setStatus(`Error: ${event.message}`, true);
+      });
+      window.addEventListener("unhandledrejection", (event) => {
+        setStatus(`Unhandled rejection: ${shortError(event.reason)}`, true);
+      });
+
+      main().catch((error) => {
+        setStatus(`Failed: ${shortError(error)}`, true);
+      });
+
+      async function main() {
+        if (!manifestUrl) {
+          throw new Error("missing manifest=.../scene.json");
+        }
+
+        setStatus(`Loading manifest: ${manifestUrl}`);
+        let manifest = await fetchJson(manifestUrl);
+        manifest = await enrichWithCompanionManifest(manifest, manifestUrl);
+        const baseUrl = new URL(manifestUrl, window.location.href);
+
+        setupThree(manifest);
+        startAnimation();
+        await loadSplat(manifest, baseUrl);
+        setStatus(`Loaded 3DGS background. Loading foreground objects...`);
+        const loadedMeshes = await loadMeshes(manifest, baseUrl);
+        const loadedSequence = await loadAnimationSequence(baseUrl);
+
+        setStatus(
+          `Loaded 3DGS + ${loadedMeshes}/${manifest.objects?.length || 0} foreground objects`
+          + `${loadedSequence ? ` + ${loadedSequence.frames.length} animation frames` : ""}. Manifest: ${manifestUrl}`,
+        );
+      }
+
+      function setupThree(manifest) {
+        splatScene = new THREE.Scene();
+        foregroundScene = new THREE.Scene();
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0x1a1a1a, 1);
+        renderer.outputColorSpace = THREE.SRGBColorSpace;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.05;
+        container.innerHTML = "";
+        container.appendChild(renderer.domElement);
+
+        camera = makeCamera(manifest.camera);
+        controls = new GaussianSplats3D.OrbitControls(camera, renderer.domElement);
+        controls.rotateSpeed = 0.5;
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.target.copy(vector3(manifest.camera?.look_at, [0, 0, 0.35]));
+        controls.update();
+
+        foregroundScene.add(new THREE.AmbientLight(0xffffff, 0.65));
+        const sun = new THREE.DirectionalLight(0xffffff, 1.2);
+        sun.position.set(1.5, -2.0, 3.0);
+        foregroundScene.add(sun);
+
+        window.addEventListener("resize", () => {
+          renderer.setSize(window.innerWidth, window.innerHeight);
+          camera.aspect = window.innerWidth / window.innerHeight;
+          camera.updateProjectionMatrix();
+        });
+      }
+
+      function makeCamera(cameraSpec) {
+        const fov = verticalFovDegreesFromCamera(cameraSpec);
+        const cam = new THREE.PerspectiveCamera(
+          Number.isFinite(fov) ? THREE.MathUtils.clamp(fov, 10, 100) : 42,
+          window.innerWidth / window.innerHeight,
+          0.005,
+          1000,
+        );
+        cam.position.copy(vector3(cameraSpec?.position, [1.4, -1.8, 1.1]));
+        cam.up.copy(vector3(cameraSpec?.up || [0, 0, 1], [0, 0, 1])).normalize();
+        if (cameraSpec?.quaternion_xyzw) {
+          cam.quaternion.fromArray(quaternionArray(cameraSpec.quaternion_xyzw, [0, 0, 0, 1]));
+        } else {
+          cam.lookAt(vector3(cameraSpec?.look_at, [0, 0, 0.35]));
+        }
+        cam.updateProjectionMatrix();
+        return cam;
+      }
+
+      async function loadSplat(manifest, baseUrl) {
+        if (params.get("fgOnly") === "1") {
+          setStatus("Skipping 3DGS background because fgOnly=1");
+          return;
+        }
+        if (!manifest.splat?.url) {
+          throw new Error("manifest has no splat.url");
+        }
+        const splatUrl = resolveAssetUrl(manifest.splat.url, baseUrl);
+        setStatus(`Loading 3DGS: ${splatUrl}`);
+        const splatTransform = composeTransformSpecs(manifest.world_transform, manifest.splat);
+        const viewer = new GaussianSplats3D.DropInViewer({
+          sharedMemoryForWorkers: false,
+          gpuAcceleratedSort: false,
+          sphericalHarmonicsDegree: manifest.splat.spherical_harmonics_degree ?? 0,
+        });
+        await viewer.addSplatScene(splatUrl, {
+          format: getSplatFormat(manifest.splat, splatUrl),
+          position: splatTransform.position.toArray(),
+          rotation: splatTransform.quaternion_xyzw,
+          scale: splatTransform.scale.toArray(),
+          progressiveLoad: false,
+          showLoadingUI: false,
+          splatAlphaRemovalThreshold: manifest.splat.alpha_removal_threshold ?? 5,
+        });
+        splatScene.add(viewer);
+      }
+
+      async function loadMeshes(manifest, baseUrl) {
+        if (params.get("bgOnly") === "1") {
+          return 0;
+        }
+        const loader = new GLTFLoader();
+        loader.setMeshoptDecoder(MeshoptDecoder);
+        let loaded = 0;
+        for (const object of manifest.objects || []) {
+          if (!object.url) {
+            continue;
+          }
+          const objectUrl = resolveAssetUrl(object.url, baseUrl);
+          setStatus(`Loading foreground object ${loaded + 1}/${manifest.objects.length}: ${object.label || object.name}`);
+          try {
+            const gltf = await loader.loadAsync(objectUrl);
+            let root = gltf.scene;
+            if (object.gltf_visual_to_blender_z_up) {
+              const wrapper = new THREE.Group();
+              wrapper.add(root);
+              root.applyMatrix4(GLTF_VISUAL_TO_BLENDER_Z_UP);
+              root = wrapper;
+            }
+            const baseTransform = applyObjectTransform(root, object, manifest.world_transform);
+            root.traverse((node) => {
+              node.frustumCulled = false;
+              node.renderOrder = 100;
+              if (!node.isMesh || !node.material) {
+                return;
+              }
+              const materials = Array.isArray(node.material) ? node.material : [node.material];
+              materials.forEach((material) => {
+                const useMeshDepth = params.get("meshDepthTest") !== "0";
+                material.depthTest = useMeshDepth;
+                material.depthWrite = useMeshDepth;
+                material.transparent = false;
+                material.opacity = 1;
+                material.side = THREE.DoubleSide;
+                if ("metalness" in material) material.metalness = 0;
+                if ("roughness" in material) material.roughness = 0.95;
+                if ("specularIntensity" in material) material.specularIntensity = 0;
+                material.needsUpdate = true;
+              });
+            });
+            root.renderOrder = 10;
+            foregroundScene.add(root);
+            meshRecordsByName.set(String(object.name || object.label || `object_${loaded}`), {
+              root,
+              baseMatrix: baseTransform.matrix.clone(),
+            });
+            addDebugMarker(root, object);
+            loaded += 1;
+          } catch (error) {
+            console.warn("Failed to load foreground object", objectUrl, error);
+          }
+        }
+        return loaded;
+      }
+
+      async function loadAnimationSequence(baseUrl) {
+        if (!sequenceUrl) {
+          return null;
+        }
+        const resolvedSequenceUrl = resolveAssetUrl(sequenceUrl, baseUrl);
+        setStatus(`Loading animation sequence: ${resolvedSequenceUrl}`);
+        const sequence = await fetchJson(resolvedSequenceUrl);
+        if (!Array.isArray(sequence.frames) || sequence.frames.length === 0) {
+          throw new Error("animation sequence has no frames");
+        }
+        const initialPoseByName = new Map();
+        for (const object of sequence.objects || []) {
+          if (object?.name && object?.initial_pose) {
+            initialPoseByName.set(String(object.name), matrixFromRowMajor(object.initial_pose));
+          }
+        }
+        animationSequence = {
+          frames: sequence.frames,
+          initialPoseByName,
+          fps: queryNumber("fps", finiteNumber(sequence.fps, 24)),
+          speed: queryNumber("speed", 1),
+          loop: params.get("loop") !== "0",
+        };
+        animationClockStartMs = performance.now();
+        lastAppliedSequenceFrame = -1;
+        return animationSequence;
+      }
+
+      function addDebugMarker(root, object) {
+        if (params.get("markers") !== "1") {
+          return;
+        }
+        const position = new THREE.Vector3();
+        root.getWorldPosition(position);
+        const marker = new THREE.Mesh(
+          new THREE.SphereGeometry(0.035, 16, 12),
+          new THREE.MeshBasicMaterial({ color: 0xff3333, depthTest: false, depthWrite: false }),
+        );
+        marker.position.copy(position);
+        marker.renderOrder = 200;
+        marker.frustumCulled = false;
+        marker.name = `marker_${object.label || object.name || "object"}`;
+        foregroundScene.add(marker);
+      }
+
+      function startAnimation() {
+        if (animationStarted) {
+          return;
+        }
+        animationStarted = true;
+        requestAnimationFrame(renderFrame);
+      }
+
+      function renderFrame() {
+        requestAnimationFrame(renderFrame);
+        controls.update();
+        updateMeshAnimation();
+        if (params.get("fgOnly") !== "1") {
+          renderer.autoClear = true;
+          renderer.render(splatScene, camera);
+          renderer.clearDepth();
+        } else {
+          renderer.clear(true, true, true);
+        }
+        if (params.get("bgOnly") !== "1") {
+          renderer.autoClear = false;
+          renderer.render(foregroundScene, camera);
+        }
+        renderer.autoClear = true;
+      }
+
+      function updateMeshAnimation() {
+        if (!animationSequence || !animationSequence.frames.length) {
+          return;
+        }
+        const elapsedSeconds = Math.max(0, (performance.now() - animationClockStartMs) / 1000);
+        const rawFrame = Math.floor(elapsedSeconds * animationSequence.fps * animationSequence.speed);
+        const frameIndex = animationSequence.loop
+          ? rawFrame % animationSequence.frames.length
+          : Math.min(rawFrame, animationSequence.frames.length - 1);
+        if (frameIndex === lastAppliedSequenceFrame) {
+          return;
+        }
+        lastAppliedSequenceFrame = frameIndex;
+        const frame = animationSequence.frames[frameIndex];
+        for (const objectPose of frame.objects || []) {
+          const name = String(objectPose.name || "");
+          const record = meshRecordsByName.get(name);
+          const initialPose = animationSequence.initialPoseByName.get(name);
+          if (!record || !initialPose || !objectPose.pose) {
+            continue;
+          }
+          const framePose = matrixFromRowMajor(objectPose.pose);
+          const delta = framePose.clone().multiply(initialPose.clone().invert());
+          const animatedWorld = delta.multiply(record.baseMatrix);
+          applyMatrixToObject(record.root, animatedWorld);
+        }
+      }
+
+      async function enrichWithCompanionManifest(manifest, url) {
+        const enriched = { ...manifest };
+        try {
+          const companionUrl = new URL("manifest.json", new URL(url, window.location.href));
+          const companion = await fetchJson(companionUrl.toString());
+          if (companion.camera) {
+            enriched.camera = { ...companion.camera, ...(enriched.camera || {}) };
+          }
+          enriched.point_cloud = enriched.point_cloud || companion.point_cloud || companion.export_metadata?.point_cloud || null;
+        } catch (error) {
+          console.debug("No companion manifest", error);
+        }
+        return enriched;
+      }
+
+      async function fetchJson(url) {
+        const response = await fetch(url, { cache: "no-store" });
+        if (!response.ok) {
+          throw new Error(`${url} returned HTTP ${response.status}`);
+        }
+        return response.json();
+      }
+
+      function getSplatFormat(splat, url) {
+        const formats = {
+          ply: GaussianSplats3D.SceneFormat.Ply,
+          ksplat: GaussianSplats3D.SceneFormat.KSplat,
+          splat: GaussianSplats3D.SceneFormat.Splat,
+        };
+        return formats[String(splat.format || "").toLowerCase()] || GaussianSplats3D.LoaderUtils.sceneFormatFromPath(url);
+      }
+
+      function resolveAssetUrl(path, baseUrl) {
+        return new URL(path, baseUrl).toString();
+      }
+
+      function applyObjectTransform(root, object, worldTransform = null) {
+        const transform = composeTransformSpecs(worldTransform, object);
+        applyMatrixToObject(root, transform.matrix);
+        return transform;
+      }
+
+      function applyMatrixToObject(root, matrix) {
+        const decomposed = decomposeTransformMatrix(matrix);
+        root.position.copy(decomposed.position);
+        root.quaternion.copy(decomposed.rotation);
+        root.scale.copy(decomposed.scale);
+        root.updateMatrix();
+        root.updateMatrixWorld(true);
+      }
+
+      function composeTransformSpecs(...specs) {
+        const matrix = new THREE.Matrix4();
+        for (const spec of specs) {
+          matrix.multiply(matrixFromTransformSpec(spec));
+        }
+        return decomposeTransformMatrix(matrix);
+      }
+
+      function matrixFromTransformSpec(spec) {
+        if (!spec) {
+          return new THREE.Matrix4();
+        }
+        if (spec.isMatrix4) {
+          return spec.clone();
+        }
+        const rows = spec.matrix_rows || spec.matrix || spec.transform_matrix || spec.pose_matrix;
+        if (rows) {
+          return matrixFromRowMajor(rows);
+        }
+        const position = vector3(spec.position, [0, 0, 0]);
+        const rotation = new THREE.Quaternion().fromArray(
+          quaternionArray(spec.quaternion_xyzw || spec.quaternion || spec.rotation, [0, 0, 0, 1]),
+        );
+        const scale = vector3(spec.scale, [1, 1, 1]);
+        return new THREE.Matrix4().compose(position, rotation.normalize(), scale);
+      }
+
+      function matrixFromRowMajor(rows) {
+        if (!Array.isArray(rows)) {
+          return new THREE.Matrix4();
+        }
+        if (rows.length >= 4 && Array.isArray(rows[0])) {
+          return new THREE.Matrix4().set(
+            rows[0][0], rows[0][1], rows[0][2], rows[0][3],
+            rows[1][0], rows[1][1], rows[1][2], rows[1][3],
+            rows[2][0], rows[2][1], rows[2][2], rows[2][3],
+            rows[3][0], rows[3][1], rows[3][2], rows[3][3],
+          );
+        }
+        if (rows.length >= 16) {
+          return new THREE.Matrix4().set(
+            rows[0], rows[1], rows[2], rows[3],
+            rows[4], rows[5], rows[6], rows[7],
+            rows[8], rows[9], rows[10], rows[11],
+            rows[12], rows[13], rows[14], rows[15],
+          );
+        }
+        return new THREE.Matrix4();
+      }
+
+      function decomposeTransformMatrix(matrix) {
+        const position = new THREE.Vector3();
+        const rotation = new THREE.Quaternion();
+        const scale = new THREE.Vector3();
+        matrix.decompose(position, rotation, scale);
+        rotation.normalize();
+        return { matrix: matrix.clone(), position, rotation, scale, quaternion_xyzw: rotation.toArray() };
+      }
+
+      function verticalFovDegreesFromCamera(cameraSpec) {
+        const explicit = finiteNumber(cameraSpec?.fov_y_degrees || cameraSpec?.fov_degrees, NaN);
+        if (Number.isFinite(explicit)) {
+          return explicit;
+        }
+        const imageSize = cameraSpec?.image_size || cameraSpec?.source_image_size;
+        const imageHeight = Array.isArray(imageSize) ? Number(imageSize[1]) : NaN;
+        const fyPixels = Number(cameraSpec?.intrinsics_pixels?.[1]?.[1]);
+        if (Number.isFinite(imageHeight) && imageHeight > 0 && Number.isFinite(fyPixels) && fyPixels > 0) {
+          return THREE.MathUtils.radToDeg(2 * Math.atan(imageHeight / (2 * fyPixels)));
+        }
+        const fyNormalized = Number(cameraSpec?.intrinsics_normalized?.[1]?.[1]);
+        if (Number.isFinite(fyNormalized) && fyNormalized > 0) {
+          return THREE.MathUtils.radToDeg(2 * Math.atan(0.5 / fyNormalized));
+        }
+        return NaN;
+      }
+
+      function vector3(value, fallback) {
+        const source = Array.isArray(value) ? value : fallback;
+        return new THREE.Vector3(
+          finiteNumber(source[0], fallback[0]),
+          finiteNumber(source[1], fallback[1]),
+          finiteNumber(source[2], fallback[2]),
+        );
+      }
+
+      function quaternionArray(value, fallback) {
+        const source = Array.isArray(value) ? value : fallback;
+        const result = [
+          finiteNumber(source[0], fallback[0]),
+          finiteNumber(source[1], fallback[1]),
+          finiteNumber(source[2], fallback[2]),
+          finiteNumber(source[3], fallback[3]),
+        ];
+        const length = Math.hypot(result[0], result[1], result[2], result[3]);
+        return length > 1e-10 ? result.map((component) => component / length) : fallback.slice();
+      }
+
+      function finiteNumber(value, fallback) {
+        const number = Number(value);
+        return Number.isFinite(number) ? number : fallback;
+      }
+
+      function queryNumber(name, fallback) {
+        const value = params.get(name);
+        return value === null || value === "" ? fallback : finiteNumber(value, fallback);
+      }
+
+      function setStatus(message, isError = false) {
+        statusEl.className = isError ? "status error" : "status";
+        statusEl.innerHTML = `<strong>3DGS check:</strong> ${escapeHtml(message)}`;
+      }
+
+      function shortError(error) {
+        return String(error?.message || error || "unknown error").slice(0, 300);
+      }
+
+      function escapeHtml(text) {
+        return String(text).replace(/[&<>"']/g, (char) => ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#39;",
+        })[char]);
+      }
+
+      function mergedParams() {
+        const output = new URLSearchParams(window.location.search);
+        const hash = window.location.hash.startsWith("#")
+          ? window.location.hash.slice(1)
+          : window.location.hash;
+        const hashParams = new URLSearchParams(hash);
+        for (const [key, value] of hashParams.entries()) {
+          output.set(key, value);
+        }
+        return output;
+      }
+    </script>
+  </body>
+</html>

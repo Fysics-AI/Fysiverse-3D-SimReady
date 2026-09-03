@@ -1,0 +1,15 @@
+# Mask-scoped scene graph VLM.
+# Do not commit real API keys. Set SCENE_GRAPH_* environment variables locally.
+
+backend: dashscope_qwen  # dashscope_qwen, openai_compatible, or codex.
+codex_bin: codex  # Used only when backend=codex.
+model: ""  # Codex model override; empty uses Codex defaults.
+timeout: 300  # Seconds for scene graph generation.
+max_crop_images: 200  # Object crop images sent to VLM. Higher can improve relations but costs more.
+reasoning_effort: inherit  # Codex only: inherit, low, medium, high, xhigh.
+
+api:
+  base_url: ""  # Set SCENE_GRAPH_API_BASE_URL locally, e.g. a DashScope compatible endpoint.
+  model: ""  # Set SCENE_GRAPH_API_MODEL locally.
+  key: ""  # Prefer SCENE_GRAPH_API_KEY; never commit credentials.
+  retry_without_crops: true

@@ -1,0 +1,22 @@
+__pycache__/
+*.py[cod]
+
+# Local runs and generated artifacts.
+logs/
+sessions/
+project_page/assets/scenes/
+.env.local
+
+# User-provided dependencies and weights.
+third_party/
+checkpoints/
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+
+# Heavy scene-generation intermediates.
+*.blend1
+*.ply
+*.npz
+*.npy

@@ -1,0 +1,36 @@
+# Collision correction and CoACD convex decomposition.
+
+bbox_overlap_margin: 0.01  # Broad-phase overlap margin. Larger catches more pairs but may over-separate.
+bbox_overlap_iters: 32  # Iterations for bbox-based separation fallback.
+overlap_collision_method: convex_hull_sat  # Keep convex_hull_sat for geometry-aware overlap checks.
+convex_hull_max_vertices: 8000  # Hull simplification cap for overlap checks. Lower is faster but rougher.
+convex_decomposition_method: coacd  # coacd gives multi-part convex collision; single_convex_hull is faster/rougher.
+separated_convex_decomposition_method: coacd  # Collision method during separated-stage correction.
+sapien_collision_decomposition_method: coacd  # Collision method exported to SAPIEN gravity.
+
+coacd:
+  conda_bin: conda  # Conda used to run CoACD helper script.
+  env: fysiverse-scene  # Conda env used for CoACD.
+  timeout: 120  # Seconds per object before CoACD decomposition is considered failed.
+  workers: 4  # Object-level CoACD parallelism. Lower if CPU/memory pressure is high.
+  source_max_faces: 5000  # Source mesh face cap before CoACD. Higher preserves detail but slows decomposition.
+  source_simplification_backend: fast_simplification  # Only supported simplifier in open-source version.
+  source_simplification_agg: 7.0  # fast_simplification aggressiveness. Higher simplifies more.
+  blender_source_decimate: false  # Legacy Blender decimation path; keep false for reproducibility.
+  max_convex_parts: 8  # Max convex parts per object. Higher improves collision accuracy but slows SAPIEN.
+  threshold: 0.05  # CoACD error threshold. Lower is more accurate/slower.
+  preprocess_mode: auto  # CoACD preprocess mode; auto is usually stable.
+  preprocess_resolution: 50  # Voxel preprocess resolution. Higher can improve hard meshes.
+  resolution: 2000  # CoACD search resolution. Higher is slower/more detailed.
+  mcts_nodes: 20  # CoACD MCTS nodes. Higher explores more decompositions.
+  mcts_iterations: 80  # CoACD MCTS iterations. Higher improves decomposition quality.
+  mcts_max_depth: 3  # Decomposition tree depth.
+  max_ch_vertex: 256  # Max vertices per convex hull.
+  apx_mode: ch  # CoACD approximation mode; ch is convex hull mode.
+  seed: 0  # Deterministic decomposition seed.
+  real_metric: false  # Use real metric mode if mesh scale is physically meaningful.
+  merge: true  # Merge nearby parts when possible; reduces collider count.
+  decimate: false  # CoACD internal decimation. We already simplify source mesh.
+
+convex_collision_eps: 1e-6  # Numerical epsilon for SAT checks.
+convex_min_horizontal_axis: 0.25  # Stability threshold for horizontal support axes.

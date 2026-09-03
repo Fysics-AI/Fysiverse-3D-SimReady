@@ -1,0 +1,45 @@
+# Agentic physical simulation assistance.
+# Keep real API keys out of this file; use SIMULATOR_ASSISTANCE_API_KEY instead.
+
+llm_backend: dashscope_qwen  # dashscope_qwen | openai_compatible | codex
+codex_bin: codex
+model: ""  # Optional Codex model override when llm_backend=codex.
+
+timeout: 600
+max_crop_images: 200
+
+api:
+  base_url: ""  # Example: https://api.openai.com/v1 or another OpenAI-compatible endpoint.
+  model: ""  # Example: gpt-4o, qwen3.7-plus, or another vision-capable chat model.
+  key: ""  # Prefer SIMULATOR_ASSISTANCE_API_KEY.
+
+deterministic_runner:
+  blender_bin: blender
+  conda_bin: conda
+  conda_env: fysiverse-scene
+  reuse_upstream_sapien_export: always
+  skip_camera_pose_optimization: true
+  skip_object_pose_optimization: true
+  skip_original_camera_render: false
+  render_width: 480
+  render_height: 480
+  render_fps: 12
+  render_samples: 8
+  render_max_frames: 50
+  render_compute_backend: CUDA
+  convex_decomposition_method: coacd
+  coacd_timeout: 120
+  coacd_max_convex_parts: 8
+  coacd_threshold: 0.05
+  coacd_preprocess_mode: auto
+  coacd_preprocess_resolution: 50
+  coacd_resolution: 2000
+  coacd_mcts_nodes: 20
+  coacd_mcts_iterations: 80
+  coacd_mcts_max_depth: 3
+  coacd_max_ch_vertex: 256
+  coacd_apx_mode: ch
+  coacd_seed: 0
+  coacd_real_metric: false
+  coacd_merge: true
+  coacd_decimate: false
