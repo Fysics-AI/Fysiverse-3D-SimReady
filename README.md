@@ -13,9 +13,15 @@
   <img src="assets/framework.png" alt="Fysiverse-3D-SimReady framework" width="100%">
 </div>
 
-This open-source subset provides the interactive image-to-3D scene generation workflow and the agentic physical simulation runner. Use the Gradio page to upload an image, annotate objects, run segmentation, wait for the scene graph, and launch 3D scene generation. After a session is reconstructed, use simulator assistance to convert a scene-specific physical goal into an executable physics rollout.
+This open-source subset provides the interactive image-to-3D scene generation workflow and the agentic physical simulation runner. The released workflow supports:
 
-To allow the community to experience our technology as soon as possible, the version we are currently releasing is built on top of open-source models. We will subsequently integrate our self-developed physics engine and generation model into this system.
+- Use the Gradio page to upload an image, annotate objects, run segmentation, and wait for the scene graph.
+- Launch 3D scene generation after the scene graph is ready and reconstruct a complete session.
+- Generate a 3D Gaussian appearance background for the reconstructed scene.
+- Use simulator assistance to convert a scene-specific physical goal into an executable physics rollout.
+- Visualize reconstructed scenes, 3DGS backgrounds, and simulation results in the web viewers.
+
+To allow the community to experience our technology as soon as possible, this release combines open-source components with proprietary models accessed through APIs for language reasoning and image completion. We will subsequently integrate our self-developed physics engine and generation model into this system.
 
 ## Environment
 
