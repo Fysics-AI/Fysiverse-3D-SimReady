@@ -213,15 +213,15 @@ Input image:
 
 Reconstruction process:
 
-<video src="assets/demo/kitchen_3dgs/reconstruction_process.mp4" controls width="720"></video>
+![Reconstruction process](assets/demo/kitchen_3dgs/reconstruction_process.gif)
 
 Simulator-only rollout:
 
-<video src="assets/demo/kitchen_3dgs/simulator_output_no_background.mp4" controls width="360"></video>
+![Simulator-only rollout](assets/demo/kitchen_3dgs/simulator_output_no_background.gif)
 
 3DGS hybrid simulation:
 
-<video src="assets/demo/kitchen_3dgs/hybrid_3dgs_simulation.mp4" controls width="720"></video>
+![3DGS hybrid simulation](assets/demo/kitchen_3dgs/hybrid_3dgs_simulation_preview.gif)
 
 Direct links: [input image](assets/demo/kitchen_3dgs/input.png),
 [reconstruction process](assets/demo/kitchen_3dgs/reconstruction_process.mp4),
