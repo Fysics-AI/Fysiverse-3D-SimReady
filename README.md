@@ -23,6 +23,12 @@ This open-source subset provides the interactive image-to-3D scene generation wo
 
 To allow the community to experience our technology as soon as possible, this release combines open-source components with proprietary models accessed through APIs for language reasoning and image completion. We will subsequently integrate our self-developed physics engine and generation model into this system.
 
+## TODO
+
+- [ ] Tech Report Released
+- [x] 3DGS background support
+- [x] Automatically simulation
+
 ## Environment
 
 Create a new conda environment for this package. The installer does not modify existing conda environments, system CUDA, or NVIDIA drivers, and it does not download model weights.
@@ -252,56 +258,6 @@ To use it with full quality:
 When rerunning a session, set `FORCE_EDIT=1` if you want to regenerate
 `input/background.png` instead of reusing a previous result.
 
-## Web View
-
-Serve the `Fysiverse-3D-SimReady` directory with a static file server:
-
-```bash
-cd Fysiverse-3D-SimReady
-
-python -m http.server 8080
-```
-
-Open the final scene viewer:
-
-```text
-http://localhost:8080/project_page/index.html?manifest=../sessions/<session_id>/results/release_package/final_scene_manifest.json&autoload=1
-```
-
-Open the lightweight pipeline animation viewer:
-
-```text
-http://localhost:8080/web_preview/pipeline_animation/index.html?session=<session_id>&cameraOverride=manifest
-```
-
-Do not open `animation_manifest.json` directly; it is the data file consumed by the preview viewer.
-
-After `Run 3D Inference` finishes in Gradio, click `Run 3DGS Background` to
-generate the appearance background. The stage writes
-`results/3dgs_bg/background.ksplat`, `scene.json`, and `manifest.json`, and
-records those paths in `results/final_scene_manifest.json`.
-
-Open the optional 3DGS hybrid viewer:
-
-```bash
-./launch_3dgs_check_server.sh 18080 127.0.0.1
-```
-
-```text
-http://127.0.0.1:18080/project_page/3dgs_check.html?manifest=../sessions/<session_id>/results/3dgs_bg/scene.json
-```
-
-For CLI usage, pass `--run-background-3dgs` to `app.py` or set `enabled: true`
-in `config/background_3dgs.yaml`.
-
-For quality checks, keep `background_image.local_fallback: false` and set
-`FORCE_EDIT=1` when rerunning a session that may already contain
-`input/background.png` from a previous local fallback. The local OpenCV inpaint
-fallback can be enabled with `BACKGROUND_LOCAL_FALLBACK=1`, but it is only meant
-for smoke tests because it usually gives a much weaker 3DGS background.
-
-Replace `<session_id>` with the session directory shown in the Gradio page. The final scene viewer loads packaged GLB assets and browser-side rigid-body controls.
-
 ## Agentic Physical Simulation
 
 The simulator assistance module consumes a completed local session and a natural-language physical goal. It writes a scene digest, a simulation plan, and optionally executes the deterministic SAPIEN/Blender runner.
@@ -351,3 +307,64 @@ with the `codex` backend or after verifying that your API model reliably returns
 strict JSON for each subtask.
 
 The runner expects the full local session under `sessions/<session_id>/`, including collision assets referenced by `results/final_scene_manifest.json`. The lightweight `release_package/` is intended for web viewing and does not necessarily contain all runner inputs. Do not commit API keys.
+
+## Web View
+
+Serve the `Fysiverse-3D-SimReady` directory with a static file server:
+
+```bash
+cd Fysiverse-3D-SimReady
+
+python -m http.server 8080
+```
+
+Open the final scene viewer:
+
+```text
+http://localhost:8080/project_page/index.html?manifest=../sessions/<session_id>/results/release_package/final_scene_manifest.json&autoload=1
+```
+
+Open the lightweight pipeline animation viewer:
+
+```text
+http://localhost:8080/web_preview/pipeline_animation/index.html?session=<session_id>&cameraOverride=manifest
+```
+
+Do not open `animation_manifest.json` directly; it is the data file consumed by the preview viewer.
+
+After `Run 3D Inference` finishes in Gradio, click `Run 3DGS Background` to
+generate the appearance background. The stage writes
+`results/3dgs_bg/background.ksplat`, `scene.json`, and `manifest.json`, and
+records those paths in `results/final_scene_manifest.json`.
+
+Open the optional 3DGS hybrid viewer:
+
+```bash
+./launch_3dgs_check_server.sh 18080 127.0.0.1
+```
+
+```text
+http://127.0.0.1:18080/project_page/3dgs_check.html?manifest=../sessions/<session_id>/results/3dgs_bg/scene.json
+```
+
+The same 3DGS hybrid viewer can replay a simulation sequence over the Gaussian
+background by adding a `sequence` query parameter:
+
+```text
+http://127.0.0.1:18080/project_page/3dgs_check.html?manifest=../sessions/<session_id>/results/3dgs_bg/scene.json&sequence=<trajectory_json>&speed=0.7
+```
+
+Here `<trajectory_json>` should point to a trajectory file produced by the
+gravity settling or agentic simulation runner, such as a `pose_trajectory.json`
+file under the current session results directory.
+
+For CLI usage, pass `--run-background-3dgs` to `app.py` or set `enabled: true`
+in `config/background_3dgs.yaml`.
+
+For quality checks, keep `background_image.local_fallback: false` and set
+`FORCE_EDIT=1` when rerunning a session that may already contain
+`input/background.png` from a previous local fallback. The local OpenCV inpaint
+fallback can be enabled with `BACKGROUND_LOCAL_FALLBACK=1`, but it is only meant
+for smoke tests because it usually gives a much weaker 3DGS background.
+
+Replace `<session_id>` with the session directory shown in the Gradio page. The final scene viewer loads packaged GLB assets and browser-side rigid-body controls.
