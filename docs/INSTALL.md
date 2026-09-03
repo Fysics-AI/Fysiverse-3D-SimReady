@@ -35,12 +35,12 @@ Install these external executables outside conda:
 
 The setup script installs the Python packages used by reconstruction,
 postprocessing, SAPIEN simulation, CoACD collision preparation, the Gradio UI,
-and API clients. It does not download third-party repositories or model
+and API clients. It does not download third party repositories or model
 weights.
 
-## Third-Party Code and Weights
+## Third Party Code and Weights
 
-Place the third-party repositories and weights under the default paths below,
+Place the third party repositories and weights under the default paths below,
 or point `config/main.yaml` and `config/background_3dgs.yaml` to your own local
 locations. The default layout is:
 
@@ -60,11 +60,11 @@ Fysiverse-3D-SimReady/
 | Component | Used for | Default location | Required files | Config or environment override |
 | --- | --- | --- | --- | --- |
 | Grounded-SAM-2 | Object and ground segmentation | `third_party/Grounded-SAM-2` | `checkpoints/sam2.1_hiera_large.pt`, `gdino_checkpoints/groundingdino_swint_ogc.pth`, and the bundled `sam2/` and `grounding_dino/` packages | `paths.gsam2_root` or `GSAM2_ROOT` |
-| SAM3D | Per-object 3D asset reconstruction | `third_party/SAM3D` | SAM3D source tree and `runtime_configs/pipeline_hf_cache_moge_modelpt.yaml` | `paths.sam3d_root`, `paths.sam3d_config`, `SAM3D_ROOT`, or `SAM3D_CONFIG` |
+| SAM3D | Object level 3D asset reconstruction | `third_party/SAM3D` | SAM3D source tree and `runtime_configs/pipeline_hf_cache_moge_modelpt.yaml` | `paths.sam3d_root`, `paths.sam3d_config`, `SAM3D_ROOT`, or `SAM3D_CONFIG` |
 | SAM3D Python env | Optional isolated SAM3D runtime | active conda env | `bin/python` if a separate env is used | `paths.sam3d_env_dir`, `SAM3D_ENV_DIR`, or `SAM3D_PYTHON` |
 | MoGe | Monocular geometry, gravity alignment, and pose refinement | `third_party/MoGe` | MoGe source tree | `paths.moge_root` or `MOGE_ROOT` |
 | MoGe checkpoint | MoGe inference | `checkpoints/moge-2-vitl-normal/model.pt` | local checkpoint file | `paths.moge_ckpt` or `MOGE_CKPT` |
-| 3DGRUT | Optional single-image 3DGS background training | `third_party/3dgrut` | `train_diy.py` and a working `.venv` inside the 3DGRUT checkout | `dependencies.threedgrut_root` or `THREEDGRUT_ROOT` |
+| 3DGRUT | Optional single image 3DGS background training | `third_party/3dgrut` | `train_diy.py` and a working `.venv` inside the 3DGRUT checkout | `dependencies.threedgrut_root` or `THREEDGRUT_ROOT` |
 | GaussianSplats3D | Optional KSplat export for browser viewing | `third_party/GaussianSplats3D` | `util/create-ksplat.js` and Node.js dependencies required by that project | `dependencies.gaussian_splats_root` or `GAUSSIAN_SPLATS_ROOT` |
 
 Grounded-SAM-2 should be installed according to its upstream instructions so
@@ -85,7 +85,7 @@ of git.
 SAPIEN and CoACD Python packages are installed by `scripts/setup_conda_env.sh`.
 The reconstruction pipeline uses SAPIEN for gravity settling and simulation,
 CoACD or convex hulls for collision proxies, and Blender for applying poses,
-writing `.blend` files, and rendering original-view videos.
+writing `.blend` files, and rendering videos from the original view.
 
 Before launching, check:
 
@@ -98,7 +98,7 @@ Before launching, check:
 
 No API key is required for local segmentation, 3D asset reconstruction,
 geometry alignment, collision correction, or SAPIEN settling. API keys are only
-needed for language or image-editing stages:
+needed for language or image editing stages:
 
 | Stage | Required when | Variables |
 | --- | --- | --- |

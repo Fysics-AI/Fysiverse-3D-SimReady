@@ -2,7 +2,7 @@
 
 <p align="center">
   <a href="https://fysics-ai.github.io/Fysiverse-3D-project-page/">
-    <img src="https://img.shields.io/badge/Project%20Page-Fysiverse--3D-blue" alt="Project Page">
+    <img src="https://img.shields.io/badge/Project%20Page-Fysiverse--3D--SimReady-blue" alt="Project Page">
   </a>
   <a href="">
     <img src="https://img.shields.io/badge/Paper-Coming%20Soon-lightgrey" alt="Paper">
@@ -11,15 +11,15 @@
 
 <img src="assets/framework.png" alt="Fysiverse-3D-SimReady framework" width="100%">
 
-This open-source subset provides the interactive image-to-3D scene generation workflow and the agentic physical simulation runner. The released workflow supports:
+This open source release provides an interactive workflow for generating 3D scenes from images and the agentic physical simulation runner. The released workflow supports:
 
 - Use the Gradio page to upload an image, annotate objects, run segmentation, and wait for the scene graph.
 - Launch 3D scene generation after the scene graph is ready and reconstruct a complete session.
 - Generate a 3D Gaussian appearance background for the reconstructed scene.
-- Use simulator assistance to convert a scene-specific physical goal into an executable physics rollout.
+- Use simulator assistance to convert a scene specific physical goal into an executable physics rollout.
 - Visualize reconstructed scenes, 3DGS backgrounds, and simulation results in the web viewers.
 
-To allow the community to experience our technology as soon as possible, this release combines open-source components with proprietary models accessed through APIs for language reasoning and image completion. We will subsequently integrate our self-developed physics engine and generation model into this system.
+To allow the community to experience our technology as soon as possible, this release combines open source components with proprietary models accessed through APIs for language reasoning and image completion. We will subsequently integrate our own physics engine and generation model into this system.
 
 ## TODO
 
@@ -30,7 +30,7 @@ To allow the community to experience our technology as soon as possible, this re
 
 ## Installation and Configuration
 
-Environment setup, third-party repositories and weights, simulation/rendering dependencies, API keys, and main config options are documented in [Installation and Configuration](docs/INSTALL.md).
+Environment setup, third party repositories and weights, simulation/rendering dependencies, API keys, and main config options are documented in [Installation and Configuration](docs/INSTALL.md).
 
 ## Launch
 
@@ -80,7 +80,7 @@ sessions/<session_id>/results/release_package/
     animation_manifest.json
 ```
 
-`final_state.glb` is uncompressed and preserves independent object nodes. `raw_objects/*.glb` keeps the original per-object assets, and `web_objects/*.glb` is prepared for browser viewing.
+`final_state.glb` is uncompressed and preserves independent object nodes. `raw_objects/*.glb` keeps the original assets for each object, and `web_objects/*.glb` is prepared for browser viewing.
 
 ## 3DGS Background Setup
 
@@ -102,11 +102,11 @@ When rerunning a session, set `FORCE_EDIT=1` if you want to regenerate
 
 ## Agentic Physical Simulation
 
-The simulator assistance module consumes a completed local session and a natural-language physical goal. It writes a scene digest, a simulation plan, and optionally executes the deterministic SAPIEN/Blender runner.
+The simulator assistance module consumes a completed local session and a natural language physical goal. It writes a scene digest, a simulation plan, and optionally executes the deterministic SAPIEN/Blender runner.
 
 Most users should use the Qwen API through DashScope. This path does not require
 a local agent CLI: create an API key in the DashScope console, enable the target
-vision-language model service, keep the key out of git, and pass it through
+vision language model service, keep the key out of git, and pass it through
 environment variables as described in [API Keys](docs/INSTALL.md#api-keys).
 
 ```bash
@@ -116,7 +116,7 @@ export SIMULATOR_ASSISTANCE_API_MODEL="<your-qwen-vision-model>"
 export SIMULATOR_ASSISTANCE_API_KEY="<your-dashscope-api-key>"
 ```
 
-Advanced users can connect another vision-language API by selecting the generic
+Advanced users can connect another vision language API by selecting the generic
 `openai_compatible` backend and setting its base URL, model name, and key in the
 same environment variables.
 
@@ -143,7 +143,7 @@ python3 simulator/run_simulator_assistance.py \
   --mode single
 ```
 
-By default, original-view rendering uses a preview setting of 50 frames, 480 x 480 resolution, and 8 Cycles samples. Override `--render-width`, `--render-height`, `--render-samples`, and `--render-max-frames` for higher quality or full-length videos. Use `--mode single` for API backends. `--mode auto` may choose the parallel
+By default, rendering from the original view uses a preview setting of 50 frames, 480 x 480 resolution, and 8 Cycles samples. Override `--render-width`, `--render-height`, `--render-samples`, and `--render-max-frames` for higher quality or complete videos. Use `--mode single` for API backends. `--mode auto` may choose the parallel
 Planner/Reasoner/Builder decomposition for larger scenes; that mode is best used
 with the `codex` backend or after verifying that your API model reliably returns
 strict JSON for each subtask.
@@ -205,7 +205,7 @@ file under the current session results directory.
 The repository includes one lightweight kitchen demo under `assets/demo/kitchen_3dgs/`.
 The demo follows the full visualization order:
 
-`input image` -> `reconstruction process` -> `simulator-only rollout` -> `3DGS hybrid simulation`
+`input image` -> `reconstruction process` -> `simulator only rollout` -> `3DGS hybrid simulation`
 
 <table>
   <tr>
@@ -220,13 +220,13 @@ The demo follows the full visualization order:
   </tr>
   <tr>
     <td align="center" width="50%">
-      <strong>3. Simulator-Only Rollout</strong><br><br>
-      <img src="assets/demo/kitchen_3dgs/simulator_output_no_background.gif" alt="Simulator-only rollout" width="360">
+      <strong>3. Simulator Only Rollout</strong><br><br>
+      <img src="assets/demo/kitchen_3dgs/simulator_output_no_background.gif" alt="Simulator only rollout" width="360">
     </td>
     <td align="center" width="50%">
       <strong>4. 3DGS Hybrid Simulation</strong><br><br>
       <img src="assets/demo/kitchen_3dgs/hybrid_3dgs_simulation_preview.gif" alt="3DGS hybrid simulation" width="520"><br>
-      <sub>The "AI-generated" watermark appears because the inpainting stage calls a proprietary image-completion API.</sub>
+      <sub>The "AI generated" watermark appears because the inpainting stage calls a proprietary image completion API.</sub>
     </td>
   </tr>
 </table>
@@ -242,4 +242,4 @@ For quality checks, keep `background_image.local_fallback: false` and set
 fallback can be enabled with `BACKGROUND_LOCAL_FALLBACK=1`, but it is only meant
 for smoke tests because it usually gives a much weaker 3DGS background.
 
-Replace `<session_id>` with the session directory shown in the Gradio page. The final scene viewer loads packaged GLB assets and browser-side rigid-body controls.
+Replace `<session_id>` with the session directory shown in the Gradio page. The final scene viewer loads packaged GLB assets and browser based rigid body controls.
