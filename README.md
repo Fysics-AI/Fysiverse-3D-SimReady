@@ -215,20 +215,17 @@ The demo follows the full visualization order:
     </td>
     <td align="center" width="50%">
       <strong>2. Reconstruction Process</strong><br><br>
-      <img src="assets/demo/kitchen_3dgs/reconstruction_process.gif" alt="Reconstruction process" width="520"><br>
-      <sub><a href="assets/demo/kitchen_3dgs/reconstruction_process.mp4">Open MP4</a></sub>
+      <img src="assets/demo/kitchen_3dgs/reconstruction_process.gif" alt="Reconstruction process" width="520">
     </td>
   </tr>
   <tr>
     <td align="center" width="50%">
       <strong>3. Simulator-Only Rollout</strong><br><br>
-      <img src="assets/demo/kitchen_3dgs/simulator_output_no_background.gif" alt="Simulator-only rollout" width="360"><br>
-      <sub><a href="assets/demo/kitchen_3dgs/simulator_output_no_background.mp4">Open MP4</a></sub>
+      <img src="assets/demo/kitchen_3dgs/simulator_output_no_background.gif" alt="Simulator-only rollout" width="360">
     </td>
     <td align="center" width="50%">
       <strong>4. 3DGS Hybrid Simulation</strong><br><br>
       <img src="assets/demo/kitchen_3dgs/hybrid_3dgs_simulation_preview.gif" alt="3DGS hybrid simulation" width="520"><br>
-      <sub><a href="assets/demo/kitchen_3dgs/hybrid_3dgs_simulation.mp4">Open MP4</a></sub><br>
       <sub>The "AI-generated" watermark appears because the inpainting stage calls a proprietary image-completion API.</sub>
     </td>
   </tr>
