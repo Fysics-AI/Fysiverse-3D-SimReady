@@ -207,26 +207,34 @@ The demo follows the full visualization order:
 
 `input image` -> `reconstruction process` -> `simulator-only rollout` -> `3DGS hybrid simulation`
 
-Input image:
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <strong>1. Input Image</strong><br><br>
+      <img src="assets/demo/kitchen_3dgs/input.png" alt="Kitchen input image" width="420">
+    </td>
+    <td align="center" width="50%">
+      <strong>2. Reconstruction Process</strong><br><br>
+      <img src="assets/demo/kitchen_3dgs/reconstruction_process.gif" alt="Reconstruction process" width="520"><br>
+      <sub><a href="assets/demo/kitchen_3dgs/reconstruction_process.mp4">Open MP4</a></sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <strong>3. Simulator-Only Rollout</strong><br><br>
+      <img src="assets/demo/kitchen_3dgs/simulator_output_no_background.gif" alt="Simulator-only rollout" width="360"><br>
+      <sub><a href="assets/demo/kitchen_3dgs/simulator_output_no_background.mp4">Open MP4</a></sub>
+    </td>
+    <td align="center" width="50%">
+      <strong>4. 3DGS Hybrid Simulation</strong><br><br>
+      <img src="assets/demo/kitchen_3dgs/hybrid_3dgs_simulation_preview.gif" alt="3DGS hybrid simulation" width="520"><br>
+      <sub><a href="assets/demo/kitchen_3dgs/hybrid_3dgs_simulation.mp4">Open MP4</a></sub><br>
+      <sub>The "AI-generated" watermark appears because the inpainting stage calls a proprietary image-completion API.</sub>
+    </td>
+  </tr>
+</table>
 
-<img src="assets/demo/kitchen_3dgs/input.png" alt="Kitchen input image" width="420">
-
-Reconstruction process:
-
-![Reconstruction process](assets/demo/kitchen_3dgs/reconstruction_process.gif)
-
-Simulator-only rollout:
-
-![Simulator-only rollout](assets/demo/kitchen_3dgs/simulator_output_no_background.gif)
-
-3DGS hybrid simulation:
-
-![3DGS hybrid simulation](assets/demo/kitchen_3dgs/hybrid_3dgs_simulation_preview.gif)
-
-Direct links: [input image](assets/demo/kitchen_3dgs/input.png),
-[reconstruction process](assets/demo/kitchen_3dgs/reconstruction_process.mp4),
-[simulator-only rollout](assets/demo/kitchen_3dgs/simulator_output_no_background.mp4),
-and [3DGS hybrid simulation](assets/demo/kitchen_3dgs/hybrid_3dgs_simulation.mp4).
+More visualization results are available on our [interactive project page](https://fysics-ai.github.io/Fysiverse-3D-project-page/).
 
 For CLI usage, pass `--run-background-3dgs` to `app.py` or set `enabled: true`
 in `config/background_3dgs.yaml`.
