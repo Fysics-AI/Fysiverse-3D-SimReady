@@ -243,3 +243,28 @@ fallback can be enabled with `BACKGROUND_LOCAL_FALLBACK=1`, but it is only meant
 for smoke tests because it usually gives a much weaker 3DGS background.
 
 Replace `<session_id>` with the session directory shown in the Gradio page. The final scene viewer loads packaged GLB assets and browser based rigid body controls.
+
+## License
+
+<div align="center">
+
+<table>
+  <tr>
+    <td align="center">
+      <h3>Apache License 2.0</h3>
+      <p>
+        Fysiverse-3D-SimReady is released under the
+        <a href="./LICENSE">Apache License 2.0</a>.
+      </p>
+      <p>
+        Third party code, pretrained models, assets, and API services used by this project
+        are subject to their respective licenses and terms of use.
+      </p>
+      <p>
+        Copyright (c) 2026 Fysics-AI.
+      </p>
+    </td>
+  </tr>
+</table>
+
+</div>
