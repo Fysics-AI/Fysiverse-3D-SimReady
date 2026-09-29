@@ -4,8 +4,8 @@
   <a href="https://fysics-ai.github.io/Fysiverse-3D-project-page/">
     <img src="https://img.shields.io/badge/Project%20Page-Fysiverse--3D--SimReady-blue" alt="Project Page">
   </a>
-  <a href="">
-    <img src="https://img.shields.io/badge/Paper-Coming%20Soon-lightgrey" alt="Paper">
+  <a href="https://arxiv.org/abs/2609.31715">
+    <img src="https://img.shields.io/badge/Paper-arXiv%202609.31715-b31b1b" alt="Paper">
   </a>
 </p>
 
@@ -23,7 +23,7 @@ To allow the community to experience our technology as soon as possible, this re
 
 ## TODO
 
-- [ ] Tech Report Released
+- [x] Tech Report Released (2026.9)
 - [x] 3DGS background support (2026.9)
 - [x] Automatic simulation (2026.9)
 - [x] Reconstruction alignment (2026.7)
